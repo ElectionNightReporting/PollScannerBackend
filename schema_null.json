@@ -1,0 +1,48 @@
+{
+  "election_header": {
+    "type": null,
+    "date": null,
+    "location": {
+      "county": null,
+      "state": null,
+      "precinct": {
+        "township": null,
+        "number": null
+      }
+    }
+  },
+  "voting_system": {
+    "type": null,
+    "serial_number": null,
+    "version": null
+  },
+  "reports": {
+    "open_polls": {
+      "timestamp": null,
+      "counters": {
+        "ballot_counter": null,
+        "lifetime_counter": null
+      },
+      "status": {
+        "polls_open": null,
+        "accepting_ballots": null
+      }
+    },
+    "closed_polls": null
+  },
+  "tally_report": {
+    "precincts_included": null
+  },
+  "results": {
+    "contests": []
+  },
+  "totals": {
+    "precinct_ballot_count": {
+      "precinct": {
+        "name": null,
+        "total": null
+      },
+      "grand_total": null
+    }
+  }
+}

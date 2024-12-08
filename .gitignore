@@ -1,0 +1,29 @@
+# Environment and virtual environment
+.DS_Store
+.env
+/venv
+__pycache__/
+
+# Test and temporary directories
+/Test_programs
+/extracted_frames/**/*.jpg
+/uploads
+/processed/**/*.jpg
+
+# Media files
+*.mp4
+*.MOV
+*.mov
+
+# Data files
+*.xlsx
+
+*.log
+/logs
+
+# Existing specific files can be removed since they'll be caught by patterns above
+# hart_intercivic_zero.mp4
+# hart_intercivic.MOV
+# hart_intercivic.mp4
+# nov5_genesee_county_candidate_list.xlsx
+# nov5_washtenaw_county_candidate_list.xlsx
