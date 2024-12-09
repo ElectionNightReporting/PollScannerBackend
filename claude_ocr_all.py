@@ -429,14 +429,15 @@ def process_ocr(frames_dir: Path):
                     "type": "text", 
                     "text": f"""Please fill out this JSON schema with the OCR data from the image. Give me the JSON only.
 
-    For reference:
-    1. The headers appear in this exact order in the images: {headers}
-    2. Only these candidate names will appear in the images: {candidate_names}
-        a. There are NO OTHER CANDIDATE NAMES that will appear in the images. Therefore if the name by OCR 
-        is similar to the candidate names but off by a few characters, then it is the SAME CANDIDATE.
+                For reference:
+                1. The headers appear in this exact order in the images: {headers}
+                2. Only these candidate names will appear in the images: {candidate_names}
+                    a. There are NO OTHER CANDIDATE NAMES that will appear in the images. Therefore if the name by OCR 
+                    is similar to the candidate names but off by a few characters, then it is the SAME CANDIDATE.
 
-    Schema to fill out:
-    {schema}"""
+                Schema to fill out:
+                {schema}
+                """
                 },
                 {
                     "type": "image",

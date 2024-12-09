@@ -50,6 +50,13 @@ PROCESSED_DIR.mkdir(exist_ok=True)
 def rate_limit():
     pass
 
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+
+async def validate_file(file: UploadFile):
+    if file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large")
+    # Add additional validation
+
 async def process_video(file_path: Path, fps: int = 1) -> dict:
     """Process video using VideoProcessor class"""
     try:
@@ -87,6 +94,9 @@ async def upload_video(
     try:
         if not video.content_type.startswith('video/'):
             raise HTTPException(status_code=400, detail="File must be a video")
+
+        # Validate file size and content
+        await validate_file(video)
 
         # Save the uploaded file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -315,5 +325,64 @@ async def move_to_polltickets(filename: str, county: str, township: str) -> Dict
         raise
     except Exception as e:
         logger.error(f"Error moving processed results: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/all-counties/presidential-winners")
+async def get_all_counties_presidential_winners() -> Dict[str, str]:
+    """
+    Get the winning party for presidential election in all counties.
+    Returns a dictionary mapping county names to their winning parties.
+    """
+    try:
+        poll_dir = Path("PollTickets")
+        if not poll_dir.exists():
+            raise HTTPException(status_code=404, detail="PollTickets directory not found")
+
+        results = {}
+        
+        # Process each county directory
+        for county_dir in poll_dir.iterdir():
+            if county_dir.is_dir():
+                county_name = county_dir.name
+                party_votes = {}
+                
+                # Process each township file in the county
+                for township_file in county_dir.glob("*.json"):
+                    async with aiofiles.open(township_file, 'r') as f:
+                        content = await f.read()
+                        data = json.loads(content)
+                        
+                        # Find the relevant contests
+                        straight_party = None
+                        presidential = None
+                        
+                        for contest in data['results']['contests']:
+                            if contest['title'] == 'Straight Party Ticket':
+                                straight_party = contest
+                            elif contest['title'] == 'Electors of President and Vice-President of the United States':
+                                presidential = contest
+                        
+                        if straight_party and presidential:
+                            # Map the party order from straight party to presidential candidates
+                            party_order = [candidate['ticket'][0] for candidate in straight_party['candidates']]
+                            
+                            # Add votes to party totals
+                            for i, candidate in enumerate(presidential['candidates']):
+                                if i < len(party_order):
+                                    party = party_order[i]
+                                    votes = int(candidate['votes'])
+                                    party_votes[party] = party_votes.get(party, 0) + votes
+                
+                if party_votes:
+                    # Find the winning party for this county
+                    winning_party = max(party_votes.items(), key=lambda x: x[1])[0]
+                    results[county_name] = winning_party
+
+        if not results:
+            raise HTTPException(status_code=404, detail="No presidential election data found")
+        return results
+
+    except Exception as e:
+        logger.error(f"Error calculating presidential winners: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
